@@ -57,93 +57,110 @@ def bipartite_soft_matching(
         return do_nothing, do_nothing
 
     with torch.no_grad():
-        # 【关键处：计算匹配对】
-        # 将 metric (例如 ViT 里面的 Attention Keys) 沿着特征维度归一化。
-        # 这样之后计算内积即为两个 token 间的余弦相似度。cz the cos(theta)=a*b/|a|*|b|
-        metric = metric / metric.norm(dim=-1, keepdim=True)
-        
-        # 按照奇偶步长把所有 Token 分段拆成两个互不相交的集合：a 组 (偶数索引) 和 b 组 (奇数索引)
-        a, b = metric[..., ::2, :], metric[..., 1::2, :]
-        
-        # 对 a 组中的每个 token 和 b 组中的每个 token 做矩阵点积。
-        # scores 矩阵形状: [batch, len(a), len(b)]，这就是它们两两间的余弦相似度打分。
-        scores = a @ b.transpose(-1, -2)
+        from tome.config import ToMeConfig
 
-        # 保护特殊 token，使它们的相似度被置为负无穷，从而不可能被挑选为匹配项 (因为后续使用 max 找最大相似度)
+        if ToMeConfig.distance_func == 'cosine':
+            metric_norm = metric / metric.norm(dim=-1, keepdim=True)
+        else:
+            metric_norm = metric
+
+        if ToMeConfig.partition_style == 'sequential':
+            mid = math.ceil(t / 2)
+            a, b = metric_norm[:, :mid, :], metric_norm[:, mid:, :]
+        elif ToMeConfig.partition_style == 'random':
+            # Handle random by shuffling the non-protected tokens
+            B, N, C = metric_norm.shape
+            rand_idx = torch.rand(B, N, 1, device=metric.device).argsort(dim=1)
+            a_idx, b_idx = rand_idx[:, :N//2, :], rand_idx[:, N//2:, :]
+            a = metric_norm.gather(dim=1, index=a_idx.expand(B, N//2, C))
+            b = metric_norm.gather(dim=1, index=b_idx.expand(B, N - N//2, C))
+        else: # alternating
+            a, b = metric_norm[..., ::2, :], metric_norm[..., 1::2, :]
+        
+        if ToMeConfig.distance_func == 'eucl':
+            scores = -torch.cdist(a, b)
+        elif ToMeConfig.distance_func == 'softmax':
+            scores = (a @ b.transpose(-1, -2)).softmax(dim=-1)
+        else: # cosine or dot
+            scores = a @ b.transpose(-1, -2)
+
         if class_token:
-            scores[..., 0, :] = -math.inf # 假如 class_token 存在，它被分在了 a 组的第 0 位 (索引为 0)
+            scores[..., 0, :] = -math.inf
         if distill_token:
-            scores[..., :, 0] = -math.inf # 假如 distill_token 存在，它刚好占满第一、二位，可能在 b 组第 0 位
+            scores[..., :, 0] = -math.inf
 
-        # 取出 a 组中每个 token 对应 b 组里打分最高的那个 b_token。
-        # node_max: 这个最高的分数 ([batch, len(a)])
-        # node_idx: 被匹配最高分的 b 组 token 索引号 
         node_max, node_idx = scores.max(dim=-1)
-        
-        # 按照相似度 max 值从大到小对 a 组的 node 排序（我们只要找出前 r 个最高置信度的连线）。
-        # argsort 返回降序排列后的 a 组自身原序列索引。
         edge_idx = node_max.argsort(dim=-1, descending=True)[..., None]
 
-        # 从中划分界限，由于排序是降序：
-        # 前 r 个最应该被“拿去合并掉的” a 组 token。这部分作为“合并源”。
         src_idx = edge_idx[..., :r, :]  
-        # 剩下那些不主动合并的 a 组孤立 token，它们将被孤零零地直接原样保留下来。
         unm_idx = edge_idx[..., r:, :]  
-        
-        # dst_idx: 这个步骤中，既然 src_idx 要被消灭并合并去 b 组，那么它们具体要和 b组 的哪一个去同化呢？
-        # 利用 node_idx（我们在刚刚找到的最大匹配对应编号），用 src_idx 进行 gather 将其对应取出。
         dst_idx = node_idx[..., None].gather(dim=-2, index=src_idx)
 
         if class_token:
-            # Sort to ensure the class token is at the start
-            # 虽然由于 class_token 被置为了 -inf 我们肯定没合并它，所以它流落到了 unm_idx 区间。
-            # 为了能在拼凑回整体 token 序列时它依然处于开头，这里手工让 unm_idx 做一次升序保证其索引 0 回归首位。
             unm_idx = unm_idx.sort(dim=1)[0]
 
-    # 定义具体的 merge 闭包（Closure），因为之后 transformer 处理前向计算时就是调它。
     def merge(x: torch.Tensor, mode="mean") -> torch.Tensor:
-        # x 为输入进来的需要被压缩/融合的实际特征 (比如 keys / values / attention后隐层)
-        # 用同样的奇偶手法切出 a(src), b(dst) 空间
-        src, dst = x[..., ::2, :], x[..., 1::2, :]
-        n, t1, c = src.shape
+        from tome.config import ToMeConfig
         
-        # unm: a 组当中无需合并的孤立 token（按照 unm_idx 索引拉出来，它们依然自己过日子）
+        if ToMeConfig.partition_style == 'sequential':
+            mid = math.ceil(t / 2)
+            src, dst = x[:, :mid, :], x[:, mid:, :]
+        elif ToMeConfig.partition_style == 'random':
+            C = x.shape[-1]
+            src = x.gather(dim=1, index=a_idx.expand(-1, -1, C))
+            dst = x.gather(dim=1, index=b_idx.expand(-1, -1, C))
+        else: # alternating
+            src, dst = x[..., ::2, :], x[..., 1::2, :]
+            
+        n, t1, c = src.shape
         unm = src.gather(dim=-2, index=unm_idx.expand(n, t1 - r, c))
-        # src: a 组当中这些要求做出牺牲（去融合到 dst 里）的代表队伍
         src = src.gather(dim=-2, index=src_idx.expand(n, r, c))
         
-        # scatter_reduce 魔法：将在 b 空间中等待着它们的对应的目标位置 (dst_idx)，
-        # 追加源 token 特征 (src)。如果 mode="mean"，那就是对特征取均值。如果 mode="sum" 就是累加。
-        # 执行完这句，部分 dst_token 变成了 (原本的自己 + 新吸纳过来的 src) 的融合体，数量还是 len(b)。
-        dst = dst.scatter_reduce(-2, dst_idx.expand(n, r, c), src, reduce=mode)
+        # Determine combine method
+        act_mode = mode
+        if ToMeConfig.combine_method == 'max pool':
+            act_mode = 'amax'
+        elif ToMeConfig.combine_method in ['avg pool', 'weighted avg']:
+            act_mode = 'mean'
+            
+        if ToMeConfig.combine_method == 'keep one':
+            # Do nothing to dst
+            pass
+        else:
+            dst = dst.scatter_reduce(-2, dst_idx.expand(n, r, c), src, reduce=act_mode)
 
-        # 把 a空间的幸存者 (unm) 和 带着融合体、甚至什么都没带的幸存者 (dst) 拼接到一起。
-        # 注意此处的拼凑意味着整体 tokens 数量比来的时候减少了 `r` 个。
         if distill_token:
             return torch.cat([unm[:, :1], dst[:, :1], unm[:, 1:], dst[:, 1:]], dim=1)
         else:
             return torch.cat([unm, dst], dim=1)
 
-    # 从已经被压扁的时空，重新铺张开来（如 MAE 解码器时如果需要恢复序列像素尺寸以进行重建，由于只在 encoder 做 tome，此时可以把特征还原出去）
     def unmerge(x: torch.Tensor) -> torch.Tensor:
         unm_len = unm_idx.shape[1]
-        # 解构出两段：未合并者特征、带上所有残余及被合并痕迹的目标特征。
         unm, dst = x[..., :unm_len, :], x[..., unm_len:, :]
         n, _, c = unm.shape
-
-        # 所谓 unmerge 并不是真通过一个时空机器把最初没合并的那个状态一模一样变回来（特征不可逆转回两份独立），
-        # 而是直接从已经融合以后的 dst 里面，再 "抄" 一份出来，原样填充回曾经被删除的 a_token 的那些位置。
         src = dst.gather(dim=-2, index=dst_idx.expand(n, r, c))
 
-        # 构建一个满配原本尺寸 (metric.shape[1]) 的全零大空盘
         out = torch.zeros(n, metric.shape[1], c, device=x.device, dtype=x.dtype)
 
-        # 把 b组(dst) 放飞到所有奇数位
-        out[..., 1::2, :] = dst
-        # 把 a组 未涉世事的人安排回他原来的偶数位
-        out.scatter_(dim=-2, index=(2 * unm_idx).expand(n, unm_len, c), src=unm)
-        # 把 a组 那帮去 b 组历练过了而且抄录回来特征的 token 也塞回原来的偶数位
-        out.scatter_(dim=-2, index=(2 * src_idx).expand(n, r, c), src=src)
+        from tome.config import ToMeConfig
+        if ToMeConfig.partition_style == 'sequential':
+            mid = math.ceil(t / 2)
+            out[:, mid:, :] = dst
+            out.scatter_(dim=-2, index=unm_idx.expand(n, unm_len, c), src=unm)
+            out.scatter_(dim=-2, index=src_idx.expand(n, r, c), src=src)
+        elif ToMeConfig.partition_style == 'random':
+            out.scatter_(dim=-2, index=b_idx.expand(n, n - n//2, c), src=dst)
+            # Reconstruct src_orig
+            src_orig = torch.zeros(n, n//2, c, device=x.device, dtype=x.dtype)
+            src_orig.scatter_(dim=-2, index=unm_idx.expand(n, unm_len, c), src=unm)
+            src_orig.scatter_(dim=-2, index=src_idx.expand(n, r, c), src=src)
+            out.scatter_(dim=-2, index=a_idx.expand(n, n//2, c), src=src_orig)
+        else:
+            out[..., 1::2, :] = dst
+            out.scatter_(dim=-2, index=(2 * unm_idx).expand(n, unm_len, c), src=unm)
+            out.scatter_(dim=-2, index=(2 * src_idx).expand(n, r, c), src=src)
+
+        return out
 
         return out
 
@@ -280,20 +297,18 @@ def merge_wavg(
     由于 token 合并后会变得类似一个聚拢滚雪球。如果两个 token 合并了，它的影响力在后续再和别的发生合并时理应更大。
     为了不让最后求平均被稀释失真，我们不能只做朴素的 `mode="mean"`。我们要按这个复合 Token 里面包含的原始像素数量（size）进行加权求均值。
     """
-    if size is None:
-        # 起初在第一层时，如果没有赋 size，每一个特征点(token) 自身就是 1 个基本单元体。
-        size = torch.ones_like(x[..., 0, None])
+    from tome.config import ToMeConfig
+    if ToMeConfig.combine_method == 'weighted avg':
+        if size is None:
+            size = torch.ones_like(x[..., 0, None])
 
-    # 先用这个 token 已累积的质量 (size) 去放大此处的原特征值
-    # 在进行 merge 时，我们必须传递 mode="sum"! 让两个被放大的特征做求和累积，
-    # 这样新的目标结点的 “未整除特征总质量” 就是两者加权之结合。
-    x = merge(x * size, mode="sum")
-    
-    # 相应地，我们记录在这个目标节点里，最终堆叠聚集了总共多少个基础小 token 单元。
-    size = merge(size, mode="sum")
-
-    # 根据刚刚加和膨胀过的数据，再除以最新总 size ，这便获得了严密无误的“当前融合组的整体加权特征平均数”。
-    x = x / size
+        x = merge(x * size, mode="sum")
+        size = merge(size, mode="sum")
+        x = x / size
+        return x, size
+    else:
+        x = merge(x) # mode falls back to mean inside merge, overridden by config
+        return x, None
     return x, size
 
 

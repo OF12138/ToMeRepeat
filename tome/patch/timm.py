@@ -34,9 +34,18 @@ class ToMeBlock(Block):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         # Note: this is copied from timm.models.vision_transformer.Block with modifications.
         attn_size = self._tome_info["size"] if self._tome_info["prop_attn"] else None
-        x_attn, metric = self.attn(self.norm1(x), attn_size)
-        x = x + self._drop_path1(x_attn)
+        x_pre = self.norm1(x)
+        x_attn, q_metric, k_metric, v_metric = self.attn(x_pre, attn_size)
+        x_post = x + self._drop_path1(x_attn)
 
+        from tome.config import ToMeConfig
+        if ToMeConfig.feature_choice == 'Xpre': metric = x_pre
+        elif ToMeConfig.feature_choice == 'X': metric = x_post
+        elif ToMeConfig.feature_choice == 'Q': metric = q_metric
+        elif ToMeConfig.feature_choice == 'V': metric = v_metric
+        else: metric = k_metric
+
+        x = x_post
         r = self._tome_info["r"].pop(0)
         if r > 0:
             # Apply ToMe here
@@ -92,8 +101,15 @@ class ToMeAttention(Attention):
         x = self.proj(x)
         x = self.proj_drop(x)
 
-        # Return k as well here
-        return x, k.mean(1)
+        from tome.config import ToMeConfig
+        if ToMeConfig.head_aggregation == 'mean':
+            q_agg, k_agg, v_agg = q.mean(1), k.mean(1), v.mean(1)
+        else: # concat
+            q_agg = q.permute(0, 2, 1, 3).reshape(B, N, C)
+            k_agg = k.permute(0, 2, 1, 3).reshape(B, N, C)
+            v_agg = v.permute(0, 2, 1, 3).reshape(B, N, C)
+
+        return x, q_agg, k_agg, v_agg
 
 
 def make_tome_class(transformer_class):
