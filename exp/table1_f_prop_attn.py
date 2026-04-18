@@ -1,3 +1,7 @@
+import sys
+import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 import argparse
 import timm
 import tome
@@ -15,8 +19,8 @@ if __name__ == "__main__":
     print("\n--- Testing Proportional Attention ---")
     
     tests = [
-        ('mae', 'vit_large_patch16_224.mae', False),
-        ('mae w/ prop', 'vit_large_patch16_224.mae', True),
+        ('mae', 'vit_large_patch16_224', False),
+        ('mae w/ prop', 'vit_large_patch16_224', True),
         ('augreg', 'vit_large_patch16_224', False),
         ('augreg w/ prop', 'vit_large_patch16_224', True),
     ]

@@ -1,8 +1,12 @@
+import sys
+import os
+import torch
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 import argparse
-import timm
 import tome
 from shared_eval import get_dataloader, validate, verify_dataset
-from tome.config import ToMeConfig
+from exp.mae_utils import load_mae_vit_large
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -21,7 +25,7 @@ if __name__ == "__main__":
         ToMeConfig.distance_func = dist_func
         
         # 3. 创建测试模型
-        model = timm.create_model("vit_large_patch16_224.mae", pretrained=True)
+        model = timm.create_model("vit_large_patch16_224", pretrained=True)
         tome.patch.timm(model, prop_attn=False)
         model.r = 8
         

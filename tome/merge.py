@@ -24,6 +24,7 @@ def bipartite_soft_matching(
     r: int,
     class_token: bool = False,
     distill_token: bool = False,
+    tome_info: dict = None,
 ) -> Tuple[Callable, Callable]:
     """
     Applies ToMe with a balanced matching set (50%, 50%).
@@ -56,19 +57,21 @@ def bipartite_soft_matching(
     if r <= 0:
         return do_nothing, do_nothing
 
-    with torch.no_grad():
-        from tome.config import ToMeConfig
+    if tome_info is None: tome_info = {}
 
-        if ToMeConfig.distance_func == 'cosine':
+    with torch.no_grad():
+        dist_func = tome_info.get("distance_func", "cosine")
+        part_style = tome_info.get("partition_style", "alternating")
+
+        if dist_func == 'cosine':
             metric_norm = metric / metric.norm(dim=-1, keepdim=True)
         else:
             metric_norm = metric
 
-        if ToMeConfig.partition_style == 'sequential':
+        if part_style == 'sequential':
             mid = math.ceil(t / 2)
             a, b = metric_norm[:, :mid, :], metric_norm[:, mid:, :]
-        elif ToMeConfig.partition_style == 'random':
-            # Handle random by shuffling the non-protected tokens
+        elif part_style == 'random':
             B, N, C = metric_norm.shape
             rand_idx = torch.rand(B, N, 1, device=metric.device).argsort(dim=1)
             a_idx, b_idx = rand_idx[:, :N//2, :], rand_idx[:, N//2:, :]
@@ -77,9 +80,9 @@ def bipartite_soft_matching(
         else: # alternating
             a, b = metric_norm[..., ::2, :], metric_norm[..., 1::2, :]
         
-        if ToMeConfig.distance_func == 'eucl':
+        if dist_func == 'eucl':
             scores = -torch.cdist(a, b)
-        elif ToMeConfig.distance_func == 'softmax':
+        elif dist_func == 'softmax':
             scores = (a @ b.transpose(-1, -2)).softmax(dim=-1)
         else: # cosine or dot
             scores = a @ b.transpose(-1, -2)
@@ -100,12 +103,13 @@ def bipartite_soft_matching(
             unm_idx = unm_idx.sort(dim=1)[0]
 
     def merge(x: torch.Tensor, mode="mean") -> torch.Tensor:
-        from tome.config import ToMeConfig
+        part_style = tome_info.get("partition_style", "alternating")
+        combine_method = tome_info.get("combine_method", "weighted avg")
         
-        if ToMeConfig.partition_style == 'sequential':
+        if part_style == 'sequential':
             mid = math.ceil(t / 2)
             src, dst = x[:, :mid, :], x[:, mid:, :]
-        elif ToMeConfig.partition_style == 'random':
+        elif part_style == 'random':
             C = x.shape[-1]
             src = x.gather(dim=1, index=a_idx.expand(-1, -1, C))
             dst = x.gather(dim=1, index=b_idx.expand(-1, -1, C))
@@ -117,14 +121,16 @@ def bipartite_soft_matching(
         src = src.gather(dim=-2, index=src_idx.expand(n, r, c))
         
         # Determine combine method
+        # 注意：当 combine_method == 'weighted avg' 时，不能覆盖 mode！
+        # 因为 merge_wavg 会传入 mode="sum" 来实现加权平均，如果被覆盖成 "mean" 就全废了
         act_mode = mode
-        if ToMeConfig.combine_method == 'max pool':
+        if combine_method == 'max pool':
             act_mode = 'amax'
-        elif ToMeConfig.combine_method in ['avg pool', 'weighted avg']:
+        elif combine_method == 'avg pool':
             act_mode = 'mean'
+        # weighted avg: 保持外部传入的 mode 不变（merge_wavg 传 "sum"，默认传 "mean"）
             
-        if ToMeConfig.combine_method == 'keep one':
-            # Do nothing to dst
+        if combine_method == 'keep one':
             pass
         else:
             dst = dst.scatter_reduce(-2, dst_idx.expand(n, r, c), src, reduce=act_mode)
@@ -135,6 +141,7 @@ def bipartite_soft_matching(
             return torch.cat([unm, dst], dim=1)
 
     def unmerge(x: torch.Tensor) -> torch.Tensor:
+        part_style = tome_info.get("partition_style", "alternating")
         unm_len = unm_idx.shape[1]
         unm, dst = x[..., :unm_len, :], x[..., unm_len:, :]
         n, _, c = unm.shape
@@ -142,15 +149,13 @@ def bipartite_soft_matching(
 
         out = torch.zeros(n, metric.shape[1], c, device=x.device, dtype=x.dtype)
 
-        from tome.config import ToMeConfig
-        if ToMeConfig.partition_style == 'sequential':
+        if part_style == 'sequential':
             mid = math.ceil(t / 2)
             out[:, mid:, :] = dst
             out.scatter_(dim=-2, index=unm_idx.expand(n, unm_len, c), src=unm)
             out.scatter_(dim=-2, index=src_idx.expand(n, r, c), src=src)
-        elif ToMeConfig.partition_style == 'random':
+        elif part_style == 'random':
             out.scatter_(dim=-2, index=b_idx.expand(n, n - n//2, c), src=dst)
-            # Reconstruct src_orig
             src_orig = torch.zeros(n, n//2, c, device=x.device, dtype=x.dtype)
             src_orig.scatter_(dim=-2, index=unm_idx.expand(n, unm_len, c), src=unm)
             src_orig.scatter_(dim=-2, index=src_idx.expand(n, r, c), src=src)
@@ -289,16 +294,11 @@ def random_bipartite_soft_matching(
 
 
 def merge_wavg(
-    merge: Callable, x: torch.Tensor, size: torch.Tensor = None
+    merge: Callable, x: torch.Tensor, size: torch.Tensor = None, tome_info: dict = None
 ) -> Tuple[torch.Tensor, torch.Tensor]:
-    """
-    Applies the merge function by taking a weighted average based on token size.
-    【加权平均合并】这是 ToMe 的重点辅助函数。
-    由于 token 合并后会变得类似一个聚拢滚雪球。如果两个 token 合并了，它的影响力在后续再和别的发生合并时理应更大。
-    为了不让最后求平均被稀释失真，我们不能只做朴素的 `mode="mean"`。我们要按这个复合 Token 里面包含的原始像素数量（size）进行加权求均值。
-    """
-    from tome.config import ToMeConfig
-    if ToMeConfig.combine_method == 'weighted avg':
+    if tome_info is None: tome_info = {}
+    
+    if tome_info.get("combine_method", "weighted avg") == 'weighted avg':
         if size is None:
             size = torch.ones_like(x[..., 0, None])
 
@@ -307,9 +307,8 @@ def merge_wavg(
         x = x / size
         return x, size
     else:
-        x = merge(x) # mode falls back to mean inside merge, overridden by config
+        x = merge(x)
         return x, None
-    return x, size
 
 
 def merge_source(

@@ -1,3 +1,7 @@
+import sys
+import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 import argparse
 import timm
 import tome
@@ -18,7 +22,7 @@ if __name__ == "__main__":
         
         ToMeConfig.partition_style = style
         
-        model = timm.create_model("vit_large_patch16_224.mae", pretrained=True)
+        model = timm.create_model("vit_large_patch16_224", pretrained=True)
         tome.patch.timm(model, prop_attn=False)
         model.r = 8
         

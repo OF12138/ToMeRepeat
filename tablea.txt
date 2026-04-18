@@ -1,0 +1,480 @@
+(tome_openfar) [u9920210112@gpu7 ToME]$ python exp/table1_a_feature.py
+[Dataset OK] Verified validation directory at /home/share/imagenet/val containing 1000 classes.
+
+--- Testing Feature Choice: Xpre ---
+Traceback (most recent call last):
+  File "/home/share/accelerate_src/openfar/tome_exp/ToME/exp/table1_a_feature.py", line 24, in <module>
+    model = timm.create_model("vit_large_patch16_224.mae", pretrained=True)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/site-packages/timm-0.4.12-py3.10.egg/timm/models/factory.py", line 78, in create_model
+    raise RuntimeError('Unknown model (%s)' % model_name)
+RuntimeError: Unknown model (vit_large_patch16_224.mae)
+(tome_openfar) [u9920210112@gpu7 ToME]$ vim exp/table1_a_feature.py
+(tome_openfar) [u9920210112@gpu7 ToME]$ "exp/table1_a_feature.py" 36L, 1223C written
+(tome_openfar) [u9920210112@gpu7 ToME]$ python exp/table1_a_feature.py
+[Dataset OK] Verified validation directory at /home/share/imagenet/val containing 1000 classes.
+
+--- Testing Feature Choice: Xpre ---
+Pre-warming GPU...
+Evaluating...
+Processed 1632 images... Current Acc: 89.34%
+Processed 3232 images... Current Acc: 82.52%
+Processed 4832 images... Current Acc: 83.71%
+Processed 6432 images... Current Acc: 84.30%
+Processed 8032 images... Current Acc: 85.46%
+Processed 9632 images... Current Acc: 83.49%
+Processed 11232 images... Current Acc: 82.27%
+Processed 12832 images... Current Acc: 81.51%
+Processed 14432 images... Current Acc: 81.08%
+Processed 16032 images... Current Acc: 81.52%
+Processed 17632 images... Current Acc: 82.19%
+Processed 19232 images... Current Acc: 82.03%
+Processed 20832 images... Current Acc: 81.86%
+Processed 22432 images... Current Acc: 81.55%
+Processed 24032 images... Current Acc: 81.21%
+Processed 25632 images... Current Acc: 80.44%
+Processed 27232 images... Current Acc: 80.06%
+Processed 28832 images... Current Acc: 80.13%
+Processed 30432 images... Current Acc: 80.00%
+Processed 32032 images... Current Acc: 79.70%
+Processed 33632 images... Current Acc: 79.44%
+Processed 35232 images... Current Acc: 79.42%
+Processed 36832 images... Current Acc: 79.31%
+Processed 38432 images... Current Acc: 79.23%
+Processed 40032 images... Current Acc: 79.10%
+Processed 41632 images... Current Acc: 78.98%
+Processed 43232 images... Current Acc: 78.67%
+Processed 44832 images... Current Acc: 78.57%
+Processed 46432 images... Current Acc: 78.33%
+Processed 48032 images... Current Acc: 78.40%
+Processed 49632 images... Current Acc: 78.27%
+Traceback (most recent call last):
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 300, in _run_finalizers
+    finalizer()
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 224, in __call__
+    res = self._callback(*self._args, **self._kwargs)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 133, in _remove_temp_dir
+    rmtree(tempdir)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 725, in rmtree
+    _rmtree_safe_fd(fd, path, onerror)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 681, in _rmtree_safe_fd
+    onerror(os.unlink, fullname, sys.exc_info())
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 679, in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+OSError: [Errno 16] Device or resource busy: '.nfs0000000058339a4500005cbe'
+Traceback (most recent call last):
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 300, in _run_finalizers
+    finalizer()
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 224, in __call__
+    res = self._callback(*self._args, **self._kwargs)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 133, in _remove_temp_dir
+    rmtree(tempdir)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 725, in rmtree
+    _rmtree_safe_fd(fd, path, onerror)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 681, in _rmtree_safe_fd
+    onerror(os.unlink, fullname, sys.exc_info())
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 679, in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+OSError: [Errno 16] Device or resource busy: '.nfs000000005833b62200005cbc'
+Traceback (most recent call last):
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 300, in _run_finalizers
+    finalizer()
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 224, in __call__
+    res = self._callback(*self._args, **self._kwargs)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 133, in _remove_temp_dir
+    rmtree(tempdir)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 725, in rmtree
+    _rmtree_safe_fd(fd, path, onerror)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 681, in _rmtree_safe_fd
+    onerror(os.unlink, fullname, sys.exc_info())
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 679, in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+OSError: [Errno 16] Device or resource busy: '.nfs000000005834340b00005cbd'
+Traceback (most recent call last):
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 300, in _run_finalizers
+    finalizer()
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 224, in __call__
+    res = self._callback(*self._args, **self._kwargs)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 133, in _remove_temp_dir
+    rmtree(tempdir)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 725, in rmtree
+    _rmtree_safe_fd(fd, path, onerror)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 681, in _rmtree_safe_fd
+    onerror(os.unlink, fullname, sys.exc_info())
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 679, in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+OSError: [Errno 16] Device or resource busy: '.nfs0000000058339a4400005cbf'
+
+--- Testing Feature Choice: X ---
+Pre-warming GPU...
+Evaluating...
+Processed 1632 images... Current Acc: 89.95%
+Processed 3232 images... Current Acc: 83.32%
+Processed 4832 images... Current Acc: 84.29%
+Processed 6432 images... Current Acc: 84.83%
+Processed 8032 images... Current Acc: 85.67%
+Processed 9632 images... Current Acc: 83.55%
+Processed 11232 images... Current Acc: 82.35%
+Processed 12832 images... Current Acc: 81.59%
+Processed 14432 images... Current Acc: 81.20%
+Processed 16032 images... Current Acc: 81.63%
+Processed 17632 images... Current Acc: 82.27%
+Processed 19232 images... Current Acc: 82.09%
+Processed 20832 images... Current Acc: 81.85%
+Processed 22432 images... Current Acc: 81.55%
+Processed 24032 images... Current Acc: 81.14%
+Processed 25632 images... Current Acc: 80.39%
+Processed 27232 images... Current Acc: 79.96%
+Processed 28832 images... Current Acc: 80.02%
+Processed 30432 images... Current Acc: 79.85%
+Processed 32032 images... Current Acc: 79.56%
+Processed 33632 images... Current Acc: 79.31%
+Processed 35232 images... Current Acc: 79.26%
+Processed 36832 images... Current Acc: 79.19%
+Processed 38432 images... Current Acc: 79.10%
+Processed 40032 images... Current Acc: 79.00%
+Processed 41632 images... Current Acc: 78.92%
+Processed 43232 images... Current Acc: 78.63%
+Processed 44832 images... Current Acc: 78.58%
+Processed 46432 images... Current Acc: 78.36%
+Processed 48032 images... Current Acc: 78.39%
+Processed 49632 images... Current Acc: 78.29%
+Traceback (most recent call last):
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 300, in _run_finalizers
+    finalizer()
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 224, in __call__
+    res = self._callback(*self._args, **self._kwargs)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 133, in _remove_temp_dir
+    rmtree(tempdir)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 725, in rmtree
+    _rmtree_safe_fd(fd, path, onerror)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 681, in _rmtree_safe_fd
+    onerror(os.unlink, fullname, sys.exc_info())
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 679, in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+OSError: [Errno 16] Device or resource busy: '.nfs000000005834033300005cc1'
+Traceback (most recent call last):
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 300, in _run_finalizers
+    finalizer()
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 224, in __call__
+    res = self._callback(*self._args, **self._kwargs)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 133, in _remove_temp_dir
+    rmtree(tempdir)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 725, in rmtree
+    _rmtree_safe_fd(fd, path, onerror)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 681, in _rmtree_safe_fd
+    onerror(os.unlink, fullname, sys.exc_info())
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 679, in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+OSError: [Errno 16] Device or resource busy: '.nfs000000005833f76600005cc3'
+Traceback (most recent call last):
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 300, in _run_finalizers
+    finalizer()
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 224, in __call__
+    res = self._callback(*self._args, **self._kwargs)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 133, in _remove_temp_dir
+    rmtree(tempdir)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 725, in rmtree
+    _rmtree_safe_fd(fd, path, onerror)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 681, in _rmtree_safe_fd
+    onerror(os.unlink, fullname, sys.exc_info())
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 679, in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+OSError: [Errno 16] Device or resource busy: '.nfs000000005834763100005cc0'
+Traceback (most recent call last):
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 300, in _run_finalizers
+    finalizer()
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 224, in __call__
+    res = self._callback(*self._args, **self._kwargs)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 133, in _remove_temp_dir
+    rmtree(tempdir)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 725, in rmtree
+    _rmtree_safe_fd(fd, path, onerror)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 681, in _rmtree_safe_fd
+    onerror(os.unlink, fullname, sys.exc_info())
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 679, in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+OSError: [Errno 16] Device or resource busy: '.nfs000000005834032c00005cc2'
+
+--- Testing Feature Choice: K ---
+Pre-warming GPU...
+Evaluating...
+Processed 1632 images... Current Acc: 90.44%
+Processed 3232 images... Current Acc: 83.94%
+Processed 4832 images... Current Acc: 84.75%
+Processed 6432 images... Current Acc: 85.26%
+Processed 8032 images... Current Acc: 86.22%
+Processed 9632 images... Current Acc: 84.35%
+Processed 11232 images... Current Acc: 83.19%
+Processed 12832 images... Current Acc: 82.29%
+Processed 14432 images... Current Acc: 81.80%
+Processed 16032 images... Current Acc: 82.27%
+Processed 17632 images... Current Acc: 82.84%
+Processed 19232 images... Current Acc: 82.67%
+Processed 20832 images... Current Acc: 82.58%
+Processed 22432 images... Current Acc: 82.29%
+Processed 24032 images... Current Acc: 82.03%
+Processed 25632 images... Current Acc: 81.27%
+Processed 27232 images... Current Acc: 80.95%
+Processed 28832 images... Current Acc: 81.05%
+Processed 30432 images... Current Acc: 80.98%
+Processed 32032 images... Current Acc: 80.70%
+Processed 33632 images... Current Acc: 80.43%
+Processed 35232 images... Current Acc: 80.43%
+Processed 36832 images... Current Acc: 80.34%
+Processed 38432 images... Current Acc: 80.28%
+Processed 40032 images... Current Acc: 80.15%
+Processed 41632 images... Current Acc: 80.05%
+Processed 43232 images... Current Acc: 79.77%
+Processed 44832 images... Current Acc: 79.73%
+Processed 46432 images... Current Acc: 79.50%
+Processed 48032 images... Current Acc: 79.57%
+Processed 49632 images... Current Acc: 79.44%
+Traceback (most recent call last):
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 300, in _run_finalizers
+    finalizer()
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 224, in __call__
+    res = self._callback(*self._args, **self._kwargs)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 133, in _remove_temp_dir
+    rmtree(tempdir)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 725, in rmtree
+    _rmtree_safe_fd(fd, path, onerror)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 681, in _rmtree_safe_fd
+    onerror(os.unlink, fullname, sys.exc_info())
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 679, in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+OSError: [Errno 16] Device or resource busy: '.nfs000000005834630600005cc4'
+Traceback (most recent call last):
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 300, in _run_finalizers
+    finalizer()
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 224, in __call__
+    res = self._callback(*self._args, **self._kwargs)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 133, in _remove_temp_dir
+    rmtree(tempdir)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 725, in rmtree
+    _rmtree_safe_fd(fd, path, onerror)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 681, in _rmtree_safe_fd
+    onerror(os.unlink, fullname, sys.exc_info())
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 679, in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+OSError: [Errno 16] Device or resource busy: '.nfs000000005834490b00005cc5'
+Traceback (most recent call last):
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 300, in _run_finalizers
+    finalizer()
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 224, in __call__
+    res = self._callback(*self._args, **self._kwargs)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 133, in _remove_temp_dir
+    rmtree(tempdir)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 725, in rmtree
+    _rmtree_safe_fd(fd, path, onerror)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 681, in _rmtree_safe_fd
+    onerror(os.unlink, fullname, sys.exc_info())
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 679, in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+OSError: [Errno 16] Device or resource busy: '.nfs000000005834490e00005cc6'
+Traceback (most recent call last):
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 300, in _run_finalizers
+    finalizer()
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 224, in __call__
+    res = self._callback(*self._args, **self._kwargs)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 133, in _remove_temp_dir
+    rmtree(tempdir)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 725, in rmtree
+    _rmtree_safe_fd(fd, path, onerror)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 681, in _rmtree_safe_fd
+    onerror(os.unlink, fullname, sys.exc_info())
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 679, in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+OSError: [Errno 16] Device or resource busy: '.nfs0000000058341c2900005cc7'
+
+--- Testing Feature Choice: Q ---
+Pre-warming GPU...
+Evaluating...
+Processed 1632 images... Current Acc: 90.69%
+Processed 3232 images... Current Acc: 84.10%
+Processed 4832 images... Current Acc: 84.62%
+Processed 6432 images... Current Acc: 85.54%
+Processed 8032 images... Current Acc: 86.48%
+Processed 9632 images... Current Acc: 84.43%
+Processed 11232 images... Current Acc: 83.16%
+Processed 12832 images... Current Acc: 82.41%
+Processed 14432 images... Current Acc: 81.89%
+Processed 16032 images... Current Acc: 82.25%
+Processed 17632 images... Current Acc: 82.93%
+Processed 19232 images... Current Acc: 82.80%
+Processed 20832 images... Current Acc: 82.69%
+Processed 22432 images... Current Acc: 82.47%
+Processed 24032 images... Current Acc: 82.10%
+Processed 25632 images... Current Acc: 81.39%
+Processed 27232 images... Current Acc: 81.01%
+Processed 28832 images... Current Acc: 81.18%
+Processed 30432 images... Current Acc: 81.06%
+Processed 32032 images... Current Acc: 80.76%
+Processed 33632 images... Current Acc: 80.62%
+Processed 35232 images... Current Acc: 80.51%
+Processed 36832 images... Current Acc: 80.48%
+Processed 38432 images... Current Acc: 80.43%
+Processed 40032 images... Current Acc: 80.32%
+Processed 41632 images... Current Acc: 80.25%
+Processed 43232 images... Current Acc: 79.95%
+Processed 44832 images... Current Acc: 79.86%
+Processed 46432 images... Current Acc: 79.61%
+Processed 48032 images... Current Acc: 79.69%
+Processed 49632 images... Current Acc: 79.56%
+Traceback (most recent call last):
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 300, in _run_finalizers
+    finalizer()
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 224, in __call__
+    res = self._callback(*self._args, **self._kwargs)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 133, in _remove_temp_dir
+    rmtree(tempdir)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 725, in rmtree
+    _rmtree_safe_fd(fd, path, onerror)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 681, in _rmtree_safe_fd
+    onerror(os.unlink, fullname, sys.exc_info())
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 679, in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+OSError: [Errno 16] Device or resource busy: '.nfs000000005834632b00005cc9'
+Traceback (most recent call last):
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 300, in _run_finalizers
+    finalizer()
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 224, in __call__
+    res = self._callback(*self._args, **self._kwargs)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 133, in _remove_temp_dir
+    rmtree(tempdir)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 725, in rmtree
+    _rmtree_safe_fd(fd, path, onerror)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 681, in _rmtree_safe_fd
+    onerror(os.unlink, fullname, sys.exc_info())
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 679, in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+OSError: [Errno 16] Device or resource busy: '.nfs0000000058340cbb00005cca'
+Traceback (most recent call last):
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 300, in _run_finalizers
+    finalizer()
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 224, in __call__
+    res = self._callback(*self._args, **self._kwargs)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 133, in _remove_temp_dir
+    rmtree(tempdir)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 725, in rmtree
+    _rmtree_safe_fd(fd, path, onerror)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 681, in _rmtree_safe_fd
+    onerror(os.unlink, fullname, sys.exc_info())
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 679, in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+OSError: [Errno 16] Device or resource busy: '.nfs000000005834632a00005cc8'
+Traceback (most recent call last):
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 300, in _run_finalizers
+    finalizer()
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 224, in __call__
+    res = self._callback(*self._args, **self._kwargs)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 133, in _remove_temp_dir
+    rmtree(tempdir)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 725, in rmtree
+    _rmtree_safe_fd(fd, path, onerror)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 681, in _rmtree_safe_fd
+    onerror(os.unlink, fullname, sys.exc_info())
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 679, in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+OSError: [Errno 16] Device or resource busy: '.nfs0000000058340cbc00005ccb'
+
+--- Testing Feature Choice: V ---
+Pre-warming GPU...
+Evaluating...
+Processed 1632 images... Current Acc: 89.52%
+Processed 3232 images... Current Acc: 83.11%
+Processed 4832 images... Current Acc: 83.84%
+Processed 6432 images... Current Acc: 84.45%
+Processed 8032 images... Current Acc: 85.38%
+Processed 9632 images... Current Acc: 83.43%
+Processed 11232 images... Current Acc: 82.19%
+Processed 12832 images... Current Acc: 81.44%
+Processed 14432 images... Current Acc: 81.01%
+Processed 16032 images... Current Acc: 81.51%
+Processed 17632 images... Current Acc: 82.16%
+Processed 19232 images... Current Acc: 82.01%
+Processed 20832 images... Current Acc: 81.85%
+Processed 22432 images... Current Acc: 81.53%
+Processed 24032 images... Current Acc: 81.19%
+Processed 25632 images... Current Acc: 80.40%
+Processed 27232 images... Current Acc: 80.04%
+Processed 28832 images... Current Acc: 80.09%
+Processed 30432 images... Current Acc: 79.96%
+Processed 32032 images... Current Acc: 79.69%
+Processed 33632 images... Current Acc: 79.41%
+Processed 35232 images... Current Acc: 79.37%
+Processed 36832 images... Current Acc: 79.28%
+Processed 38432 images... Current Acc: 79.21%
+Processed 40032 images... Current Acc: 79.18%
+Processed 41632 images... Current Acc: 79.05%
+Processed 43232 images... Current Acc: 78.77%
+Processed 44832 images... Current Acc: 78.68%
+Processed 46432 images... Current Acc: 78.49%
+Processed 48032 images... Current Acc: 78.56%
+Processed 49632 images... Current Acc: 78.43%
+Traceback (most recent call last):
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 300, in _run_finalizers
+    finalizer()
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 224, in __call__
+    res = self._callback(*self._args, **self._kwargs)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 133, in _remove_temp_dir
+    rmtree(tempdir)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 725, in rmtree
+    _rmtree_safe_fd(fd, path, onerror)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 681, in _rmtree_safe_fd
+    onerror(os.unlink, fullname, sys.exc_info())
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 679, in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+OSError: [Errno 16] Device or resource busy: '.nfs000000005834870a00005ccc'
+Traceback (most recent call last):
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 300, in _run_finalizers
+    finalizer()
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 224, in __call__
+    res = self._callback(*self._args, **self._kwargs)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 133, in _remove_temp_dir
+    rmtree(tempdir)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 725, in rmtree
+    _rmtree_safe_fd(fd, path, onerror)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 681, in _rmtree_safe_fd
+    onerror(os.unlink, fullname, sys.exc_info())
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 679, in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+OSError: [Errno 16] Device or resource busy: '.nfs000000005834870b00005ccd'
+Traceback (most recent call last):
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 300, in _run_finalizers
+    finalizer()
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 224, in __call__
+    res = self._callback(*self._args, **self._kwargs)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 133, in _remove_temp_dir
+    rmtree(tempdir)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 725, in rmtree
+    _rmtree_safe_fd(fd, path, onerror)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 681, in _rmtree_safe_fd
+    onerror(os.unlink, fullname, sys.exc_info())
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 679, in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+OSError: [Errno 16] Device or resource busy: '.nfs00000000583493f900005cce'
+Traceback (most recent call last):
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 300, in _run_finalizers
+    finalizer()
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 224, in __call__
+    res = self._callback(*self._args, **self._kwargs)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/multiprocessing/util.py", line 133, in _remove_temp_dir
+    rmtree(tempdir)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 725, in rmtree
+    _rmtree_safe_fd(fd, path, onerror)
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 681, in _rmtree_safe_fd
+    onerror(os.unlink, fullname, sys.exc_info())
+  File "/home/u9920210112/anaconda3/envs/tome_openfar/lib/python3.10/shutil.py", line 679, in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+OSError: [Errno 16] Device or resource busy: '.nfs00000000583493f800005ccf'
+
+==================================================
+Table 1(a): Feature Choice Results
+Feature Acc (%) Im/s
+Xpre    78.28   100.6
+X       78.32   130.0
+K       79.46   127.5
+Q       79.58   127.3
+V       78.46   127.0
+==================================================
+(tome_openfar) [u9920210112@gpu7 ToME]$

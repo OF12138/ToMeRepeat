@@ -3,3 +3,7 @@ __pycache__/
 *.egg-info/
 build/
 test.py
+*.pth
+*.pt
+*.ckpt
+

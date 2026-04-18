@@ -33,19 +33,20 @@ class ToMeBlock(Block):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         # Note: this is copied from timm.models.vision_transformer.Block with modifications.
-        attn_size = self._tome_info["size"] if self._tome_info["prop_attn"] else None
+        attn_size = self._tome_info["size"] if self._tome_info.get("prop_attn", True) else None
         x_pre = self.norm1(x)
-        x_attn, q_metric, k_metric, v_metric = self.attn(x_pre, attn_size)
+        x_attn, metric = self.attn(x_pre, attn_size)
         x_post = x + self._drop_path1(x_attn)
 
-        from tome.config import ToMeConfig
-        if ToMeConfig.feature_choice == 'Xpre': metric = x_pre
-        elif ToMeConfig.feature_choice == 'X': metric = x_post
-        elif ToMeConfig.feature_choice == 'Q': metric = q_metric
-        elif ToMeConfig.feature_choice == 'V': metric = v_metric
-        else: metric = k_metric
+        # Performance fix: avoid deep python loop imports, fetch config naturally from dict
+        feat_choice = self._tome_info.get("feature_choice", "K")
+        if feat_choice == 'Xpre': 
+            metric = x_pre
+        elif feat_choice == 'X': 
+            metric = x_post
 
         x = x_post
+
         r = self._tome_info["r"].pop(0)
         if r > 0:
             # Apply ToMe here
@@ -54,12 +55,13 @@ class ToMeBlock(Block):
                 r,
                 self._tome_info["class_token"],
                 self._tome_info["distill_token"],
+                tome_info=self._tome_info,
             )
             if self._tome_info["trace_source"]:
                 self._tome_info["source"] = merge_source(
                     merge, x, self._tome_info["source"]
                 )
-            x, self._tome_info["size"] = merge_wavg(merge, x, self._tome_info["size"])
+            x, self._tome_info["size"] = merge_wavg(merge, x, self._tome_info["size"], tome_info=self._tome_info)
 
         x = x + self._drop_path2(self.mlp(self.norm2(x)))
         return x
@@ -101,15 +103,20 @@ class ToMeAttention(Attention):
         x = self.proj(x)
         x = self.proj_drop(x)
 
-        from tome.config import ToMeConfig
-        if ToMeConfig.head_aggregation == 'mean':
-            q_agg, k_agg, v_agg = q.mean(1), k.mean(1), v.mean(1)
-        else: # concat
-            q_agg = q.permute(0, 2, 1, 3).reshape(B, N, C)
-            k_agg = k.permute(0, 2, 1, 3).reshape(B, N, C)
-            v_agg = v.permute(0, 2, 1, 3).reshape(B, N, C)
+        # Performance fix: only compute the actively requested metric (avoid 3x redundant ops)
+        feat_choice = self._tome_info.get("feature_choice", "K")
+        head_agg = self._tome_info.get("head_aggregation", "mean")
 
-        return x, q_agg, k_agg, v_agg
+        if feat_choice == "Q": target = q
+        elif feat_choice == "V": target = v
+        else: target = k # default K
+        
+        if head_agg == 'mean':
+            metric = target.mean(1)
+        else: # concat
+            metric = target.permute(0, 2, 1, 3).reshape(B, N, C)
+
+        return x, metric
 
 
 def make_tome_class(transformer_class):
@@ -164,3 +171,5 @@ def apply_patch(
             module._tome_info = model._tome_info
         elif isinstance(module, Attention):
             module.__class__ = ToMeAttention
+            module._tome_info = model._tome_info
+
